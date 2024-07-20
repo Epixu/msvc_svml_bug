@@ -31,9 +31,9 @@ SCENARIO("Power on vectors", "[power]") {
    }
 
    GIVEN("pow(x, y) = r using 2 doubles") {
-      float x[2] {1.1f, 2.2f};
-      float y[2] {1.0f, 2.0f};
-      float r[2];
+      double x[2] {1.1, 2.2};
+      double y[2] {1.0, 2.0};
+      double r[2];
 
       ControlPow(x, y, r);
 
