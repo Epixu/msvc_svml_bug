@@ -1,7 +1,20 @@
-#include "Common.hpp"
+#include <catch2/catch.hpp>
+
+#include <simde/x86/sse4.2.h>
+#include <simde/x86/sse4.1.h>
+#include <simde/x86/ssse3.h>
+#include <simde/x86/sse3.h>
+#include <simde/x86/sse2.h>
+#include <simde/x86/sse.h>
+#include <simde/x86/avx.h>
+#include <simde/x86/avx2.h>
+
+#include <simde/x86/svml.h>
 
 
 // Comparing against std::pow                                                    
+// This always gives consistent results, unless built on a 32bit MSVC build with 
+// SSE/SSE2/AVX/AVX2                                                             
 template<class T, size_t C>
 void ControlPow(const T(&l)[C], const T(&r)[C], T(&out)[C]) noexcept {
    for (int i = 0; i < C; ++i)
@@ -18,12 +31,12 @@ SCENARIO("Power on vectors", "[power]") {
       ControlPow(x, y, r);
 
       WHEN("Raised to a power via SIMD") {
-         auto x2 = simde_mm_setr_ps(x[0], x[1], x[2], x[3]);
-         auto y2 = simde_mm_setr_ps(y[0], y[1], y[2], y[3]);
-         auto r2 = simde_mm_pow_ps(x2, y2);
+         auto x2 = _mm_setr_ps(x[0], x[1], x[2], x[3]);
+         auto y2 = _mm_setr_ps(y[0], y[1], y[2], y[3]);
+         auto r2 = _mm_pow_ps(x2, y2);
 
          alignas(16) float test[4];
-         simde_mm_store_ps(test, r2);
+         _mm_store_ps(test, r2);
 
          for (int i = 0; i < 4; ++i)
             REQUIRE(test[i] == r[i]);
@@ -38,15 +51,15 @@ SCENARIO("Power on vectors", "[power]") {
       ControlPow(x, y, r);
 
       WHEN("Raised to a power via SIMD") {
-         auto x2 = simde_mm_setr_pd(x[0], x[1]);
-         auto y2 = simde_mm_setr_pd(y[0], y[1]);
-         auto r2 = simde_mm_pow_pd(x2, y2);
+         auto x2 = _mm_setr_pd(x[0], x[1]);
+         auto y2 = _mm_setr_pd(y[0], y[1]);
+         auto r2 = _mm_pow_pd(x2, y2);
 
          alignas(16) double test[2];
-         simde_mm_store_pd(test, r2);
+         _mm_store_pd(test, r2);
 
          for (int i = 0; i < 2; ++i)
-            REQUIRE(test[i] == r[i]);
+            REQUIRE(test[i] == r[i]); // second element fails if built as 32bit MSVC build with SSE/SSE2/AVX/AVX2
       }
    }
 
@@ -58,15 +71,15 @@ SCENARIO("Power on vectors", "[power]") {
       ControlPow(x, y, r);
 
       WHEN("Raised to a power via SIMD") {
-         auto x2 = simde_mm256_setr_pd(x[0], x[1], x[2], x[3]);
-         auto y2 = simde_mm256_setr_pd(y[0], y[1], y[2], y[3]);
-         auto r2 = simde_mm256_pow_pd(x2, y2);
+         auto x2 = _mm256_setr_pd(x[0], x[1], x[2], x[3]);
+         auto y2 = _mm256_setr_pd(y[0], y[1], y[2], y[3]);
+         auto r2 = _mm256_pow_pd(x2, y2);
 
          alignas(32) double test[4];
-         simde_mm256_store_pd(test, r2);
+         _mm256_store_pd(test, r2);
 
          for (int i = 0; i < 4; ++i)
-            REQUIRE(test[i] == r[i]);
+            REQUIRE(test[i] == r[i]); // fourth element fails if built as 32bit MSVC build with SSE/SSE2/AVX/AVX2
       }
    }
 }

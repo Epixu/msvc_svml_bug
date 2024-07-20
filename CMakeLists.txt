@@ -29,12 +29,14 @@ function(fetch_external_module NAME GIT_REPOSITORY REPO GIT_TAG TAG)
     set(${NAME}_BINARY_DIR "${${LOWERCASE_NAME}_BINARY_DIR}" CACHE INTERNAL "${NAME} binary directory")
 endfunction()
 
+# Used to structure the tests													
 fetch_external_module(
     Catch2
     GIT_REPOSITORY  https://github.com/catchorg/Catch2.git
     GIT_TAG         d4b0b34 #v2.x
 )
 
+# SIMDe is used only for detecting available native intrinsics consistently		
 fetch_external_module(
     SIMDe
     GIT_REPOSITORY  https://github.com/simd-everywhere/simde.git
