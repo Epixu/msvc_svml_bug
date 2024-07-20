@@ -1,6 +1,7 @@
 #include <catch2/catch.hpp>
+#include <immintrin.h>
 
-#include <simde/x86/sse4.2.h>
+/*#include <simde/x86/sse4.2.h>
 #include <simde/x86/sse4.1.h>
 #include <simde/x86/ssse3.h>
 #include <simde/x86/sse3.h>
@@ -9,7 +10,7 @@
 #include <simde/x86/avx.h>
 #include <simde/x86/avx2.h>
 
-#include <simde/x86/svml.h>
+#include <simde/x86/svml.h>*/
 
 
 // Comparing against std::pow                                                    
