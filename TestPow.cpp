@@ -1,7 +1,6 @@
 #include <catch2/catch.hpp>
-#include <immintrin.h>
 
-/*#include <simde/x86/sse4.2.h>
+#include <simde/x86/sse4.2.h>
 #include <simde/x86/sse4.1.h>
 #include <simde/x86/ssse3.h>
 #include <simde/x86/sse3.h>
@@ -9,8 +8,7 @@
 #include <simde/x86/sse.h>
 #include <simde/x86/avx.h>
 #include <simde/x86/avx2.h>
-
-#include <simde/x86/svml.h>*/
+#include <simde/x86/svml.h>
 
 
 // Comparing against std::pow                                                    
@@ -24,6 +22,7 @@ void ControlPow(const T(&l)[C], const T(&r)[C], T(&out)[C]) noexcept {
 
 // Test float/double vectors                                                     
 SCENARIO("Power on vectors", "[power]") {
+#if defined(SIMDE_X86_SSE2_NATIVE)
    GIVEN("pow(x, y) = r using 4 floats") {
       float x[4] {1.1f, 2.2f, 3.3f, 42.f};
       float y[4] {1.0f, 2.0f, 3.0f, 59.f};
@@ -63,7 +62,9 @@ SCENARIO("Power on vectors", "[power]") {
             REQUIRE(test[i] == r[i]); // second element fails if built as 32bit MSVC build with SSE/SSE2/AVX/AVX2
       }
    }
+#endif
 
+#if defined(SIMDE_X86_AVX_NATIVE)
    GIVEN("pow(x, y) = r using 4 doubles") {
       double x[4] {1.1, 2.2, 3.3, 42.0};
       double y[4] {1.0, 2.0, 3.0, 59.f};
@@ -83,4 +84,5 @@ SCENARIO("Power on vectors", "[power]") {
             REQUIRE(test[i] == r[i]); // fourth element fails if built as 32bit MSVC build with SSE/SSE2/AVX/AVX2
       }
    }
+#endif
 }
