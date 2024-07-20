@@ -45,7 +45,7 @@ SCENARIO("Power on vectors", "[power]") {
          alignas(16) double test[2];
          simde_mm_store_pd(test, r2);
 
-         for (int i = 0; i < 4; ++i)
+         for (int i = 0; i < 2; ++i)
             REQUIRE(test[i] == r[i]);
       }
    }
