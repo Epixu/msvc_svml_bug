@@ -32,7 +32,7 @@ SCENARIO("Power on vectors", "[power]") {
 
    GIVEN("pow(x, y) = r using 2 doubles") {
       double x[2] {1.1, 42.0};
-      double y[2] {1.0, 52.0};
+      double y[2] {1.0, 59.f};
       double r[2];
 
       ControlPow(x, y, r);
@@ -52,7 +52,7 @@ SCENARIO("Power on vectors", "[power]") {
 
    GIVEN("pow(x, y) = r using 4 doubles") {
       double x[4] {1.1, 2.2, 3.3, 42.0};
-      double y[4] {1.0, 2.0, 3.0, 52.0};
+      double y[4] {1.0, 2.0, 3.0, 59.f};
       double r[4];
 
       ControlPow(x, y, r);
