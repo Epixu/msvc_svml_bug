@@ -22,7 +22,7 @@ void ControlPow(const T(&l)[C], const T(&r)[C], T(&out)[C]) noexcept {
 
 // Test float/double vectors                                                     
 SCENARIO("Power on vectors", "[power]") {
-#if defined(SIMDE_X86_SSE2_NATIVE)
+#if defined(SIMDE_X86_SVML_NATIVE) && defined(SIMDE_X86_SSE_NATIVE)
    GIVEN("pow(x, y) = r using 4 floats") {
       float x[4] {1.1f, 2.2f, 3.3f, 42.f};
       float y[4] {1.0f, 2.0f, 3.0f, 59.f};
