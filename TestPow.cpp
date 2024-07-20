@@ -11,15 +11,15 @@ void ControlPow(const T(&l)[C], const T(&r)[C], T(&out)[C]) noexcept {
 // Test float/double vectors                                                     
 SCENARIO("Power on vectors", "[power]") {
    GIVEN("pow(x, y) = r using 4 floats") {
-      float x[4] {1.1f, 2.2f, 3.3f, 4.4f};
-      float y[4] {1.0f, 2.0f, 3.0f, 4.0f};
+      float x[4] {1.1f, 2.2f, 3.3f, 42.f};
+      float y[4] {1.0f, 2.0f, 3.0f, 59.f};
       float r[4];
 
       ControlPow(x, y, r);
 
       WHEN("Raised to a power via SIMD") {
-         auto x2 = simde_mm_setr_ps(1.1f, 2.2f, 3.3f, 4.4f);
-         auto y2 = simde_mm_setr_ps(1.0f, 2.0f, 3.0f, 4.0f);
+         auto x2 = simde_mm_setr_ps(x[0], x[1], x[2], x[3]);
+         auto y2 = simde_mm_setr_ps(y[0], y[1], y[2], y[3]);
          auto r2 = simde_mm_pow_ps(x2, y2);
 
          alignas(16) float test[4];
@@ -31,15 +31,15 @@ SCENARIO("Power on vectors", "[power]") {
    }
 
    GIVEN("pow(x, y) = r using 2 doubles") {
-      double x[2] {1.1, 2.2};
-      double y[2] {1.0, 2.0};
+      double x[2] {1.1, 42.0};
+      double y[2] {1.0, 52.0};
       double r[2];
 
       ControlPow(x, y, r);
 
       WHEN("Raised to a power via SIMD") {
-         auto x2 = simde_mm_setr_pd(1.1, 2.2);
-         auto y2 = simde_mm_setr_pd(1.0, 2.0);
+         auto x2 = simde_mm_setr_pd(x[0], x[1]);
+         auto y2 = simde_mm_setr_pd(y[0], y[1]);
          auto r2 = simde_mm_pow_pd(x2, y2);
 
          alignas(16) double test[2];
@@ -51,15 +51,15 @@ SCENARIO("Power on vectors", "[power]") {
    }
 
    GIVEN("pow(x, y) = r using 4 doubles") {
-      double x[4] {1.1, 2.2, 3.3, 4.4};
-      double y[4] {1.0, 2.0, 3.0, 4.0};
+      double x[4] {1.1, 2.2, 3.3, 42.0};
+      double y[4] {1.0, 2.0, 3.0, 52.0};
       double r[4];
 
       ControlPow(x, y, r);
 
       WHEN("Raised to a power via SIMD") {
-         auto x2 = simde_mm256_setr_pd(1.1, 2.2, 3.3, 4.4);
-         auto y2 = simde_mm256_setr_pd(1.0, 2.0, 3.0, 4.0);
+         auto x2 = simde_mm256_setr_pd(x[0], x[1], x[2], x[3]);
+         auto y2 = simde_mm256_setr_pd(y[0], y[1], y[2], y[3]);
          auto r2 = simde_mm256_pow_pd(x2, y2);
 
          alignas(32) double test[4];
