@@ -64,7 +64,7 @@ SCENARIO("Power on vectors", "[power]") {
    }
 #endif
 
-#if defined(SIMDE_X86_AVX_NATIVE)
+#if defined(SIMDE_X86_SVML_NATIVE) && defined(SIMDE_X86_AVX_NATIVE)
    GIVEN("pow(x, y) = r using 4 doubles") {
       double x[4] {1.1, 2.2, 3.3, 42.0};
       double y[4] {1.0, 2.0, 3.0, 59.f};
