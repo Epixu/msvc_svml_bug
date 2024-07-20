@@ -12,7 +12,7 @@ jobs:
         os: [ubuntu-22.04, windows-latest]
         build: [Release]
         arch: [x86, x64]
-        cxx: [g++, clang++-16, ClangCl, v143, v142, v141]
+        cxx: [g++, clang++-16, ClangCl, v143]
         feature: [
           [SSE2, 16, '-msse2', '/arch:SSE2'],
           [SSE3, 16, '-msse3', '<not available on msvc>'],

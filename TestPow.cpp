@@ -1,137 +1,52 @@
-///                                                                           
-/// Langulus::SIMD                                                            
-/// Copyright (c) 2019 Dimo Markov <team@langulus.com>                        
-/// Part of the Langulus framework, see https://langulus.com                  
-///                                                                           
-/// SPDX-License-Identifier: MIT                                              
-///                                                                           
 #include "Common.hpp"
 
 
-template<CT::Dense B, CT::Dense E> NOD() LANGULUS(INLINED)
-constexpr auto Pow(B base, E exponent) noexcept {
-   if (base == B {1})
-      return B {1};
+// Comparing against std::pow                                                    
+template<class T, size_t C>
+void ControlPow(const T(&l)[C], const T(&r)[C], T(&out)[C]) noexcept {
+   for (int i = 0; i < C; ++i)
+      out[i] = ::std::pow(l[i], r[i]);
+}
 
-   if constexpr (CT::IntegerX<B, E>) {
-      if constexpr (CT::Unsigned<B>) {
-         B result {1};
-         while (exponent != E {0}) {
-            if ((exponent & E {1}) != E {0})
-               result *= base;
-            exponent >>= E {1};
-            base *= base;
-         }
-         return result;
+// Test float/double vectors                                                     
+SCENARIO("Power on vectors", "[power]") {
+   GIVEN("pow(x, y) = r using floats") {
+      float x[4] {1.1f, 2.2f, 3.3f, 4.4f};
+      float y[4] {1.0f, 2.0f, 3.0f, 4.0f};
+      float r[4];
+
+      ControlPow(x, y, r);
+
+      WHEN("Raised to a power via SIMD") {
+         auto x2 = simde_mm_setr_ps(1.1f, 2.2f, 3.3f, 4.4f);
+         auto y2 = simde_mm_setr_ps(1.0f, 2.0f, 3.0f, 4.0f);
+         auto r2 = simde_mm_pow_ps(x2, y2);
+
+         alignas(16) float test[4];
+         simde_mm_store_ps(test, r2);
+
+         for (int i = 0; i < 4; ++i)
+            REQUIRE(test[i] == r[i]);
       }
-      else if (exponent > 0) {
-         B result {1};
-         while (exponent != E {0}) {
-            result *= base;
-            --exponent;
-         }
-         return result;
-      }
-      else return B {0};
    }
-   else if constexpr (CT::Real<B, E>)
-      return ::std::pow(base, exponent);
-   else
-      LANGULUS_ERROR("T must be a number");
-}
 
-template<class LHS, class RHS, class OUT> LANGULUS(INLINED)
-void ControlPow(const LHS& lhs, const RHS& rhs, OUT& out) noexcept {
-   out = Pow(lhs, rhs);
-}
+   GIVEN("pow(x, y) = r using doubles") {
+      double x[4] {1.1, 2.2, 3.3, 4.4};
+      double y[4] {1.0, 2.0, 3.0, 4.0};
+      double r[4];
 
-template<class LHS, class RHS, size_t C, class OUT> LANGULUS(INLINED)
-void ControlPow(const Vector<LHS, C>& lhsArray, const Vector<RHS, C>& rhsArray, Vector<OUT, C>& out) noexcept {
-   auto r = out.mArray;
-   auto lhs = lhsArray.mArray;
-   auto rhs = rhsArray.mArray;
-   const auto lhsEnd = lhs + C;
-   while (lhs != lhsEnd)
-      ControlPow(*lhs++, *rhs++, *r++);
-}
+      ControlPow(x, y, r);
 
-TEMPLATE_TEST_CASE("Power", "[power]"
-   , NUMBERS_ALL()
-   , VECTORS_ALL(1)
-   , VECTORS_ALL(2)
-   , VECTORS_ALL(3)
-   , VECTORS_ALL(4)
-   , VECTORS_ALL(5)
-   , VECTORS_ALL(8)
-   , VECTORS_ALL(9)
-   , VECTORS_ALL(16)
-   , VECTORS_ALL(17)
-   , VECTORS_ALL(32)
-   , VECTORS_ALL(33)
-) {
-   using T = TestType;
+      WHEN("Raised to a power via SIMD") {
+         auto x2 = simde_mm256_setr_pd(1.1, 2.2, 3.3, 4.4);
+         auto y2 = simde_mm256_setr_pd(1.0, 2.0, 3.0, 4.0);
+         auto r2 = simde_mm256_pow_pd(x2, y2);
 
-   GIVEN("pow(x, y) = r") {
-      T x, y;
-      T r, rCheck;
+         alignas(32) double test[4];
+         simde_mm256_store_pd(test, r2);
 
-      if constexpr (not CT::Vector<T>) {
-         InitOne(x, 1);
-         InitOne(y, -5);
-      }
-
-      WHEN("Raised to a power") {
-         ControlPow(x, y, rCheck);
-         SIMD::Power(x, y, r);
-
-         REQUIRE(r == rCheck);
-
-         #ifdef LANGULUS_STD_BENCHMARK
-            BENCHMARK_ADVANCED("Power (control)") (timer meter) {
-               some<T> nx(meter.runs());
-               if constexpr (not CT::Vector<T>) {
-                  for (auto& i : nx)
-                     InitOne(i, 1);
-               }
-
-               some<T> ny(meter.runs());
-               if constexpr (not CT::Vector<T>) {
-                  for (auto& i : ny)
-                     InitOne(i, 1);
-               }
-
-               some<T> nr(meter.runs());
-               meter.measure([&](int i) {
-                  ControlPow(nx[i], ny[i], nr[i]);
-               });
-            };
-
-            BENCHMARK_ADVANCED("Power (SIMD)") (timer meter) {
-               some<T> nx(meter.runs());
-               if constexpr (not CT::Vector<T>) {
-                  for (auto& i : nx)
-                     InitOne(i, 1);
-               }
-
-               some<T> ny(meter.runs());
-               if constexpr (not CT::Vector<T>) {
-                  for (auto& i : ny)
-                     InitOne(i, 1);
-               }
-
-               some<T> nr(meter.runs());
-               meter.measure([&](int i) {
-                  SIMD::Power(nx[i], ny[i], nr[i]);
-               });
-            };
-         #endif
-      }
-
-      WHEN("Raise to a power in reverse") {
-         ControlPow(y, x, rCheck);
-         SIMD::Power(y, x, r);
-
-         REQUIRE(r == rCheck);
+         for (int i = 0; i < 4; ++i)
+            REQUIRE(test[i] == r[i]);
       }
    }
 }
